@@ -3,7 +3,7 @@ import io.papermc.hangarpublishplugin.model.Platforms
 plugins {
     `java`
     id("io.papermc.paperweight.userdev") version "1.7.1"
-    id("xyz.jpenilla.run-paper") version "2.0.1"
+    id("xyz.jpenilla.run-paper") version "2.1.0"
     id("com.modrinth.minotaur") version "2.+"
     id("io.papermc.hangar-publish-plugin") version "0.0.5"
 }
@@ -29,14 +29,6 @@ dependencies {
 }
 
 tasks {
-    reobfJar {
-        version = "v${project.version}+$minecraftVersion"
-    }
-
-    assemble {
-        dependsOn(reobfJar)
-    }
-
     compileJava {
         options.encoding = Charsets.UTF_8.name()
 
@@ -70,7 +62,7 @@ modrinth {
     versionName.set("v${project.version} (Paper $minecraftVersion)")
     versionNumber.set("${project.version}+$minecraftVersion")
     versionType.set("release")
-    uploadFile.set(tasks.reobfJar.get().outputJar)
+    uploadFile.set(tasks.jar)
     gameVersions.addAll(versions)
     loaders.addAll(listOf("paper", "purpur"))
     dependencies {
@@ -86,7 +78,7 @@ hangarPublish {
         apiKey.set(System.getenv("HANGAR_TOKEN"))
         platforms {
             register(Platforms.PAPER) {
-                jar.set(tasks.reobfJar.get().outputJar)
+                jar.set(tasks.jar.flatMap { it.archiveFile })
                 platformVersions.set(versions)
                 dependencies {
                     hangar("henkelmax", "SimpleVoiceChat") {
